@@ -47,8 +47,8 @@ if __name__ == "__main__":
     F = [2,3,5,7,11,13,17,19,23,29]
     # f.close()
 
-    # L = |F| + 2
-    L = len(F) + 2
+    # L size specified on website
+    L = 1024
     
     # generate L relations
     table = np.empty([L, len(F)]) 
