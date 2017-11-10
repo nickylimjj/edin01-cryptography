@@ -1,7 +1,6 @@
 import numpy as np
 import sys
 import os
-
 def populate_table (T, N):
     """
     DESC:   generate suitable r values 
@@ -36,16 +35,28 @@ def test_solution(solution, F, N):
 
 if __name__ == "__main__":
 
-     # our N
-    N = 89692892645583511288289L
+    # our N
+    project_N = 89692892645583511288289L
     test_N1 = 323       # 17 * 19
     test_N2 = 307561    # 457 * 673
     test_N3 = 31741649  # 4621 * 6969
 
-    # factorbase our choice is size 10
-    # TODO f = open('prim_2_24.txt', 'r')
-    F = [2,3,5,7,11,13,17,19,23,29]
-    # f.close()
+    N = test_N1
+
+    # factorbase our choice is size 1000
+    F_size = 1000
+    F = []
+    with open('prim_2_24.txt', 'r') as f:
+        size = 0
+        while size < F_size:
+            line = f.readline()         # 10 per line
+            for word in line.split():
+                F += [word]
+                size += 1
+                
+    f.close()
+
+    print "|F| = {}".format(len(F))
 
     # L size specified on website
     L = 1024
@@ -74,5 +85,5 @@ if __name__ == "__main__":
         #TODO test solution
         p, q = test_solution(solution, N)
         if (p != 0 and q != 0):
-            print "p=%\tq=%".format(p,q)
+            print "p={}\tq={}".format(p,q)
         
