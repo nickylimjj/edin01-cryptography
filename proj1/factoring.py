@@ -140,7 +140,6 @@ if __name__ == "__main__":
     # matrix for gaussian elimination
     M = generate_matrix(table,F)
 
-#    M = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
     # save matrix to M.txt
     with open("M.txt", "w") as f:
 
@@ -151,8 +150,8 @@ if __name__ == "__main__":
             f.write("{}\n".format(string.strip(str(row),'[] ')))
 
     # find a nullspace of M that works
-    # we run Gauss.exe
-    os.system("./GaussBin.exe M.txt X.txt")
+    # we run gauss program
+    os.system("./gauss M.txt X.txt")
 
     f = open("X.txt","r")
     for solution in f.readlines():
