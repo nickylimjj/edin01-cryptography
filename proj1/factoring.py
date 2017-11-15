@@ -56,11 +56,10 @@ def checkSmooth_(r2,B):
     return -1
         
 
-def generate_matrix (M):
+def generate_matrix (table):
     """
     DESC:   generate a matrix of 1s and 0s mod 2
-    INPUT:  M - 2-D matrix to populate,
-                size L x |F|
+    INPUT:  Table
     OUTPUT: filled matrix
     """
     # TODO
