@@ -16,6 +16,7 @@ def populate_table (T, N, B):
     i = 0
     Thres = 100
 
+    # fill up entire table
     while i < L:
         k = 0
         j = 0
@@ -23,7 +24,8 @@ def populate_table (T, N, B):
         r2 = r**2 % N
 
         # check if r2 is B-smooth
-        if checkSmooth_(r2,B):
+        fac = checkSmooth_(r2,B)
+        if fac != -1:
             T[i] = (k, j, r, r2)
             i += 1
     
@@ -38,18 +40,20 @@ def checkSmooth_(r2,B):
     DESC:   checks if the number r2 is B-smooth
     INPUT:  r2 - integer to be checked
             B - integer to check againsr
-    OUTPUT: T/F - boolean to indicate
+    OUTPUT: fac - array of factors. -1 on failure
     """
 
     # TODO
     curr = r2
+    fac = []
     for i in range(1,B):
         if curr % i == 0:
             curr /= i
+            fac += [i]
 
     if curr == 1:
-        return True
-    return False
+        return fac
+    return -1
         
 
 def generate_matrix (M):
