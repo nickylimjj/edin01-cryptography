@@ -1,4 +1,5 @@
 import numpy as np
+import string
 import sys
 import os
 import math as m
@@ -12,7 +13,6 @@ def populate_table (T, N, B):
             B - B-smooth value
     OUTPUT: filled table
     """
-    # TODO
     L, _ = T.shape
     i = 0
     k = 1
@@ -40,17 +40,18 @@ def checkSmooth_(r2,B):
     """
     DESC:   checks if the number r2 is B-smooth
     INPUT:  r2 - integer to be checked
-            B - integer to check againsr
-    OUTPUT: fac - array of factors. -1 on failure
+            B - integer to check against
+    OUTPUT: fac - dict of factors to exponent. -1 on failure
     """
-
-    # TODO
     curr = r2
-    fac = []
+    fac = {} 
     for i in range(2,B):
-        if curr % i == 0:
+        while curr % i == 0:
             curr /= i
-            fac += [i]
+            try:
+                fac[i] += 1
+            except KeyError:
+                fac[i] = 1
 
     if curr == 1:
         return fac
@@ -64,6 +65,7 @@ def generate_matrix (table):
     OUTPUT: filled matrix
     """
     # TODO
+    M = []
     return M
 
 def test_solution(solution, F, N):
@@ -76,6 +78,7 @@ def test_solution(solution, F, N):
     OUTPUT: p,q - valid solution to factor N,
             0,0 if not valid
     """
+    # TODO
     return 0, 0
 
 if __name__ == "__main__":
@@ -107,8 +110,6 @@ if __name__ == "__main__":
                 F += [word]
                 size += 1
                 
-    f.close()
-
     B = int(F[-1]) + 1
     print "\t|F| = {}".format(len(F))
     print "\t{}-smooth".format(B)
@@ -126,13 +127,17 @@ if __name__ == "__main__":
     print "\t table populated..."
 
     # matrix for gaussian elimination
-    M = np.empty([L, len(F)])
     M = generate_matrix(table)
 
+    M = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
     # save matrix to M.txt
-    f = open("M.txt", "w")
-    # TODO: write to M.txt
-    f.close()
+    with open("M.txt", "w") as f:
+
+        m,n = M.shape
+        f.write("{} {}\n".format(m,n))
+
+        for row in M:
+            f.write("{}\n".format(string.strip(str(row),'[] ')))
 
     # find a nullspace of M that works
     # we run Gauss.exe
