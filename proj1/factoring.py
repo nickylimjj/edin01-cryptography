@@ -43,10 +43,19 @@ if __name__ == "__main__":
 
     N = test_N1
 
+
+    print("factoring project")
+    print("----------------")
+    print("N=\t{}".format(N))
+
     # factorbase our choice is size 1000
     F_size = 1000
     F = []
-    with open('prim_2_24.txt', 'r') as f:
+
+    filename = "prim_2_24.txt"
+    print("\tloading factorbase {}...".format(filename))
+
+    with open(filename, 'r') as f:
         size = 0
         while size < F_size:
             line = f.readline()         # 10 per line
@@ -56,10 +65,12 @@ if __name__ == "__main__":
                 
     f.close()
 
-    print "|F| = {}".format(len(F))
+    print "\t|F| = {}".format(len(F))
 
     # L size specified on website
     L = 1024
+
+    print "\tL = {}".format(len(F))
     
     # generate L relations
     table = np.empty([L, len(F)]) 
