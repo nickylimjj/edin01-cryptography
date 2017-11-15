@@ -58,14 +58,25 @@ def checkSmooth_(r2,B):
     return -1
         
 
-def generate_matrix (table):
+def generate_matrix (table,F):
     """
+    anthony-input: F
     DESC:   generate a matrix of 1s and 0s mod 2
     INPUT:  Table
     OUTPUT: filled matrix
     """
     # TODO
-    M = []
+    L,_ = table.shape
+    M = np.zeros((L,len(F)))
+    rownum = 0
+    for row in table:
+	r2 = row[3]
+	B = F[-1]+1
+	d = checkSmooth_(r2,B)
+	for key,value in d.iteritems():
+	    ind = F.index(key)
+	    M[rownum][ind] = value%2
+	rownum += 1
     return M
 
 def test_solution(solution, F, N):
@@ -107,10 +118,10 @@ if __name__ == "__main__":
         while size < F_size:
             line = f.readline()         # 10 per line
             for word in line.split():
-                F += [word]
+                F += [int(word)]
                 size += 1
                 
-    B = int(F[-1]) + 1
+    B = F[-1] + 1
     print "\t|F| = {}".format(len(F))
     print "\t{}-smooth".format(B)
 
@@ -127,9 +138,9 @@ if __name__ == "__main__":
     print "\t table populated..."
 
     # matrix for gaussian elimination
-    M = generate_matrix(table)
+    M = generate_matrix(table,F)
 
-    M = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
+#    M = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
     # save matrix to M.txt
     with open("M.txt", "w") as f:
 
