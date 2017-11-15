@@ -1,15 +1,56 @@
 import numpy as np
 import sys
 import os
-def populate_table (T, N):
+import math as m
+
+def populate_table (T, N, B):
     """
     DESC:   generate suitable r values 
     INPUT:  T - 2-D table to populate, with columns
                 i, r r^2 mod N, factors
+            B - B-smooth value
     OUTPUT: filled table
     """
     # TODO
+    (L,M) = T.shape
+    i = 0
+    Thres = 100
+
+    while i < L:
+        k = 0
+        j = 0
+        r = m.floor(m.sqrt(k*N)) + j
+        r2 = r**2 % N
+
+        # check if r2 is B-smooth
+        if checkSmooth_(r2,B):
+            T[i] = (k, j, r, r2)
+            i += 1
+    
+        j += 1
+        if j >= Thres:
+            j %= Thres
+            k += 1
     return T
+
+def checkSmooth_(r2,B):
+    """
+    DESC:   checks if the number r2 is B-smooth
+    INPUT:  r2 - integer to be checked
+            B - integer to check againsr
+    OUTPUT: T/F - boolean to indicate
+    """
+
+    # TODO
+    curr = r2
+    for i in range(1,B):
+        if curr % i == 0:
+            curr /= i
+
+    if curr == 1:
+        return True
+    return False
+        
 
 def generate_matrix (M):
     """
@@ -43,10 +84,9 @@ if __name__ == "__main__":
 
     N = test_N1
 
-
     print("factoring project")
     print("----------------")
-    print("N=\t{}".format(N))
+    print("N =\t{}".format(N))
 
     # factorbase our choice is size 1000
     F_size = 1000
@@ -65,7 +105,9 @@ if __name__ == "__main__":
                 
     f.close()
 
+    B = int(F[-1]) + 1
     print "\t|F| = {}".format(len(F))
+    print "\t{}-smooth".format(B)
 
     # L size specified on website
     L = 1024
@@ -76,7 +118,7 @@ if __name__ == "__main__":
     table = np.empty([L, len(F)]) 
     
     # find suitable r values
-    populate_table(table, N)
+    populate_table(table, N, B)
 
     # matrix for gaussian elimination
     M = np.empty([L, len(F)])
