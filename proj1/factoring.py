@@ -2,30 +2,31 @@ import numpy as np
 import sys
 import os
 import math as m
+import time
 
 def populate_table (T, N, B):
     """
     DESC:   generate suitable r values 
     INPUT:  T - 2-D table to populate, with columns
-                i, r r^2 mod N, factors
+                i, r r^2 mod N
             B - B-smooth value
     OUTPUT: filled table
     """
     # TODO
-    (L,M) = T.shape
+    L, _ = T.shape
     i = 0
+    k = 1
+    j = 0
     Thres = 100
 
     # fill up entire table
     while i < L:
-        k = 0
-        j = 0
+
         r = m.floor(m.sqrt(k*N)) + j
         r2 = r**2 % N
 
         # check if r2 is B-smooth
-        fac = checkSmooth_(r2,B)
-        if fac != -1:
+        if checkSmooth_(r2,B) != -1:
             T[i] = (k, j, r, r2)
             i += 1
     
@@ -46,7 +47,7 @@ def checkSmooth_(r2,B):
     # TODO
     curr = r2
     fac = []
-    for i in range(1,B):
+    for i in range(2,B):
         if curr % i == 0:
             curr /= i
             fac += [i]
@@ -118,10 +119,11 @@ if __name__ == "__main__":
     print "\tL = {}".format(len(F))
     
     # generate L relations
-    table = np.empty([L, len(F)]) 
+    table = np.empty([L, 4]) 
     
     # find suitable r values
     populate_table(table, N, B)
+    print "\t table populated..."
 
     # matrix for gaussian elimination
     M = np.empty([L, len(F)])
