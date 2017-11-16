@@ -6,34 +6,57 @@ import argparse
 import math
 import time
 
-def populate_table (T, N, B):
+def generate_matrix (N, L, B, F):
     """
-    DESC:   generate suitable r values 
-    INPUT:  T - 2-D table to populate, with columns
-                i, r r^2 mod N
+    DESC:   generate suitable r values
+            and store it in a matrix
+    INPUT:  N - modulus N
+            L - number of relations
             B - B-smooth value
-    OUTPUT: filled table
+            F - factor base
+    OUTPUT: M filled matrix to save to file
     """
-    L, _ = T.shape
+
+    # generate L relations
+    T = np.zeros([L, 4], dtype=np.int64) 
     i = 0
     k = 1
     j = 0
-    Thres = 10
+    Thres = 50
 
     # fill up entire table
     while i < L:
-
-
+        
+        # generate a test r and r^2
         r = int(math.floor(math.sqrt(k*N)) + j)
-        if r > 50000:
-            print k,N, j
         r2 = (r**2) % N
+        
+	dict_of_fac = checkSmooth_(r2,B)
+        hashdict = {}
 
-        # check if r2 is B-smooth
-        if checkSmooth_(r2,B) != -1:
-            T[i] = (k, j, r, r2)
-            i += 1
-    
+        # check if r2 is B-smooth and not duplicate
+        if dict_of_fac != -1:
+
+            # generate matrix representation
+            # '[1,1,0,0,1,...]'
+            r2_mat_repr = np.zeros([1,len(F)], dtype=int)
+
+            for key,value in dict_of_fac.iteritems():
+                ind = F.index(key)
+                r2_mat_repr[0][ind] = value%2
+
+            # if not duplicate, we add it in
+            try:
+                print M.shape
+                if dict[r2_mat_repr]:
+                    print i,k,j,r,r2
+                    # add table and matrix row
+                    T[i] = (k, j, r, r2)
+                    M = np.vstack([M, r2_mat_repr])
+                    i += 1
+            except UnboundLocalError:
+                M = r2_mat_repr
+                i += 1
         k += 1
         if k >= Thres:
             k %= Thres
@@ -42,7 +65,13 @@ def populate_table (T, N, B):
     print('\tmax k={}, j={}'.format(Thres,j))
     print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
             np.amax(T,axis=0)[3]))
-    return T
+     
+
+    # store to matrix
+    M = np.zeros((L,len(F)))
+    rownum = 0
+
+    return T, M
 
 def checkSmooth_(r2,B):
     """
@@ -66,26 +95,6 @@ def checkSmooth_(r2,B):
     return -1
         
 
-def generate_matrix (table,F):
-    """
-    anthony-input: F
-    DESC:   generate a matrix of 1s and 0s mod 2
-    INPUT:  Table
-    OUTPUT: filled matrix
-    """
-    # TODO
-    L,_ = table.shape
-    M = np.zeros((L,len(F)))
-    rownum = 0
-    for row in table:
-	r2 = row[3]
-	B = F[-1]+1
-	d = checkSmooth_(r2,B)
-	for key,value in d.iteritems():
-	    ind = F.index(key)
-	    M[rownum][ind] = value%2
-	rownum += 1
-    return M
 
 def test_solution(x, table, F, N):
     """
@@ -99,14 +108,15 @@ def test_solution(x, table, F, N):
             0,0 if not valid
     """
     # TODO
-    LHS = 1                         # tracks r values
-    RHS = 1                        # track r^2
+    LHS = np.int64(1)                         # tracks r values
+    RHS = np.int64(1)                        # track r^2
     B = F[-1] + 1
     hello = {} 
     soln =  x.rstrip().split(' ')
-    if soln.count('1') > 30:
-        # print('sol count:{}'.format(soln.count('1')))
-        return 1,1
+    # if soln.count('1') > 30:
+        # # print('sol count:{}'.format(soln.count('1')))
+        # pass
+        # return 1,1
 
     for idx, val in enumerate(soln):
         # select row
@@ -188,18 +198,14 @@ if __name__ == "__main__":
 
     print "\t|F| = {}".format(len(F))
     print "\t{}-smooth".format(B)
-    print "\tL = {}".format(len(F))
+    print "\tL = {}".format(L)
 
-    # generate L relations
-    table = np.zeros([L, 4], dtype=int) 
     
     # find suitable r values
-    populate_table(table, N, B)
-    print "\t[*] table populated"
+    T, M = generate_matrix(N, L, B, F)
+    print "\t[*] matrix generated"
 
     # matrix for gaussian elimination
-    M = generate_matrix(table,F)
-    print "\t[*] matrix generated"
 
     # save matrix to in.mat
     with open(in_file, 'w') as f:
@@ -221,7 +227,7 @@ if __name__ == "__main__":
         num_soln = out_f.readline()
 
         for x in out_f.readlines():
-            p, q = test_solution(x, table, F, N)
+            p, q = test_solution(x, T, F, N)
             if (p != 1 and q != 1):
                 break
 
