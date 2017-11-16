@@ -80,21 +80,62 @@ def generate_matrix (table,F):
 	rownum += 1
     return M
 
-def test_solution(solution, in_f, R, F, N):
+def test_solution(x, table, F, N):
     """
     DESC:   parses a bit-string across a factorbase and
             determine if it is a valid solution
-    INPUT:  solution - bit string to test
-            in_f - matrix of equations
-            R - table of r values
+    INPUT:  x - bit string to test
+            table - table of r and r^2 values
             F - factor base
             N - number N = pq to factor
     OUTPUT: p,q - valid solution to factor N,
             0,0 if not valid
     """
     # TODO
+    LHS = 1                         # tracks r values
+    RHS = 1                         # track r^2
+    B = F[-1] + 1
     
-    return 0, 0
+    soln =  x.rstrip().split(' ')
+    print soln.count('1')
+
+    for idx, val in enumerate(soln):
+        # select row
+        if val == 1:
+            print("entered")
+            LHS *= table[idx][-2]                   # get r
+            # factors = checkSmooth_(table[idx][-1],
+                                   # B)               # get dict of factors
+            # RHS = merge_dict(RHS,factors)
+            RHS *= table[idx][-1]
+
+    RHS = m.sqrt(RHS)
+
+    print(LHS,RHS)
+    # calculate p
+    p = gcd(abs(RHS-LHS), N)
+    q = N/p
+
+    return p, q
+
+def gcd(a,b):
+    """
+    DESC:   Euclidean algorithm
+    INPUT:  a - int
+            b - int
+    OUTPT:  greatest common divisor
+    """
+    a = abs(a)
+    b = abs(b)
+
+    while a:
+        a, b = b%a, a
+    return b
+
+def merge_dict(x,y):
+    z = x.copy()
+    z.update(y)
+    return z
 
 if __name__ == "__main__":
 
@@ -125,31 +166,31 @@ if __name__ == "__main__":
     F_size = 1000
     F = []
 
+    print("\tloading factorbase {}...".format(prime_file))
+    with open(prime_file, 'r') as f:
+        size = 0
+        while size < F_size:
+            line = f.readline()         # 10 per line
+            for word in line.split():
+                F += [int(word)]
+                size += 1
+                
+    # L size specified on website
+    L = 1024
+    B = F[-1] + 1
+
+    print "\t|F| = {}".format(len(F))
+    print "\t{}-smooth".format(B)
+    print "\tL = {}".format(len(F))
+
+    # generate L relations
+    table = np.empty([L, 4]) 
+    
+    # find suitable r values
+    populate_table(table, N, B)
+    print "\t[*] table populated"
+
     if(args.generate):
-        print("\tloading factorbase {}...".format(prime_file))
-        with open(prime_file, 'r') as f:
-            size = 0
-            while size < F_size:
-                line = f.readline()         # 10 per line
-                for word in line.split():
-                    F += [int(word)]
-                    size += 1
-                    
-        # L size specified on website
-        L = 1024
-        B = F[-1] + 1
-
-        print "\t|F| = {}".format(len(F))
-        print "\t{}-smooth".format(B)
-        print "\tL = {}".format(len(F))
-
-        # generate L relations
-        table = np.empty([L, 4]) 
-        
-        # find suitable r values
-        populate_table(table, N, B)
-        print "\t[*] table populated"
-
         # matrix for gaussian elimination
         M = generate_matrix(table,F)
         print "\t[*] matrix generated"
@@ -168,13 +209,13 @@ if __name__ == "__main__":
         os.system("./gauss {} {}".format(in_file, out_file))
         print "\t[*] gauss program executed. output at {}".format(out_file)
 
-    with open(out_file,"r") as out_f and open(in_file,"w") as in_f:
+    with open(out_file,"r") as out_f:
 
         num_soln = out_f.readline()
 
-        for solution in out_f.readlines():
+        for x in out_f.readlines():
             #TODO test solution
-            p, q = test_solution(solution, in_f, table, F, N)
+            p, q = test_solution(x, table, F, N)
             if (p != 0 and q != 0):
                 print "p={}\tq={}".format(p,q)
         
