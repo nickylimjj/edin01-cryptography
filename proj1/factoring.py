@@ -102,7 +102,7 @@ def test_solution(x, table, F, N):
     LHS = 1                         # tracks r values
     RHS = 1                        # track r^2
     B = F[-1] + 1
-    
+    hello = {} 
     soln =  x.rstrip().split(' ')
     if soln.count('1') > 30:
         # print('sol count:{}'.format(soln.count('1')))
@@ -112,12 +112,16 @@ def test_solution(x, table, F, N):
         # select row
         if val == '1':
             LHS *= table[idx][-2]                   # get r
-            # factors = checkSmooth_(table[idx][-1],
-                                   # B)               # get dict of factors
+            factors = checkSmooth_(table[idx][-1],B)  # get dict of factors
+	    for keyy,value in factors.iteritems():
+		if (hello.has_key(keyy)):
+		    hello[keyy] += factors[keyy]/2
+		else:
+		    hello[keyy] = factors[keyy]/2
             # RHS = merge_dict(RHS,factors)
-            RHS *= int(table[idx][-1])
-
-    RHS = int(math.sqrt(RHS))
+            #RHS *= int(table[idx][-1])
+    for keyy,value in hello.iteritems():
+	RHS *= keyy**hello[keyy]
 
     # calculate p
     p = gcd(abs(RHS-LHS), N)
