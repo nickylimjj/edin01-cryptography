@@ -3,7 +3,7 @@ import string
 import sys
 import os
 import argparse
-import math as m
+import math
 import time
 
 def populate_table (T, N, B):
@@ -23,7 +23,7 @@ def populate_table (T, N, B):
     # fill up entire table
     while i < L:
 
-        r = m.floor(m.sqrt(k*N)) + j
+        r = math.floor(math.sqrt(k*N)) + j
         r2 = r**2 % N
 
         # check if r2 is B-smooth
@@ -93,7 +93,7 @@ def test_solution(x, table, F, N):
     """
     # TODO
     LHS = 1                         # tracks r values
-    RHS = 1                         # track r^2
+    RHS = 1                        # track r^2
     B = F[-1] + 1
     
     soln =  x.rstrip().split(' ')
@@ -101,17 +101,15 @@ def test_solution(x, table, F, N):
 
     for idx, val in enumerate(soln):
         # select row
-        if val == 1:
-            print("entered")
+        if val == '1':
             LHS *= table[idx][-2]                   # get r
             # factors = checkSmooth_(table[idx][-1],
                                    # B)               # get dict of factors
             # RHS = merge_dict(RHS,factors)
-            RHS *= table[idx][-1]
+            RHS *= int(table[idx][-1])
 
-    RHS = m.sqrt(RHS)
+    RHS = int(math.sqrt(RHS))
 
-    print(LHS,RHS)
     # calculate p
     p = gcd(abs(RHS-LHS), N)
     q = N/p
@@ -152,7 +150,7 @@ if __name__ == "__main__":
     test_N2 = 307561    # 457 * 673
     test_N3 = 31741649  # 4621 * 6969
 
-    N = test_N1
+    N = test_N2
 
     prime_file = "prim_2_24.txt"
     in_file = "in.mat"
@@ -190,32 +188,38 @@ if __name__ == "__main__":
     populate_table(table, N, B)
     print "\t[*] table populated"
 
-    if(args.generate):
-        # matrix for gaussian elimination
-        M = generate_matrix(table,F)
-        print "\t[*] matrix generated"
+    # matrix for gaussian elimination
+    M = generate_matrix(table,F)
+    print "\t[*] matrix generated"
 
-        # save matrix to in.mat
-        with open(in_file, 'w') as f:
-            # save header info
-            m,n = M.shape
-            f.write("{} {}\n".format(m,n))
-            # save matrix M
-            np.savetxt(f, M, fmt='%d', delimiter=' ')
-        print "\t[*] matrix saved to {}".format(in_file)
+    # save matrix to in.mat
+    with open(in_file, 'w') as f:
+        # save header info
+        m,n = M.shape
+        f.write("{} {}\n".format(m,n))
+        # save matrix M
+        np.savetxt(f, M, fmt='%d', delimiter=' ')
+    print "\t[*] matrix saved to {}".format(in_file)
 
-        # find a nullspace of M that works
-        # we run gauss program
-        os.system("./gauss {} {}".format(in_file, out_file))
-        print "\t[*] gauss program executed. output at {}".format(out_file)
+    # find a nullspace of M that works
+    # we run gauss program
+    os.system("./gauss {} {}".format(in_file, out_file))
+    print "\t[*] gauss program executed. output at {}".format(out_file)
 
+    # finds the solution p, q
     with open(out_file,"r") as out_f:
 
         num_soln = out_f.readline()
 
         for x in out_f.readlines():
-            #TODO test solution
             p, q = test_solution(x, table, F, N)
-            if (p != 0 and q != 0):
-                print "p={}\tq={}".format(p,q)
+            if (p != 1 and q != 1):
+                break
+
+
+    # print answer
+    if (p != 1 and q != 1):
+        print "p={}\tq={}".format(p,q)
+    else:
+        print("solution not found")
         
