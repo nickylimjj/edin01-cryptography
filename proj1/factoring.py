@@ -81,7 +81,20 @@ def checkSmooth_(r2,B):
         return fac
     return -1
         
+def is_smooth(n, F):
+    if n == 0:
+        return -1
 
+    for factor in F:
+        while n % factor == 0:
+            n /= factor
+            try:
+                fac[i] += 1
+            except KeyError:
+                fac[i] = 1
+    if n == 1:
+        return fac
+    return -1
 
 def test_solution(x, table, F, N):
     """
@@ -104,17 +117,16 @@ def test_solution(x, table, F, N):
     for idx, val in enumerate(soln):
         # select row
         if val == '1':
-            LHS *= table[idx][-2]                   # get r
+            LHS = LHS * table[idx][-2] % N                   # get r
             factors = checkSmooth_(table[idx][-1],B)  # get dict of factors
-	    for keyy,value in factors.iteritems():
-		if (hello.has_key(keyy)):
-		    hello[keyy] += factors[keyy]/2
-		else:
-		    hello[keyy] = factors[keyy]/2
-            # RHS = merge_dict(RHS,factors)
-            #RHS *= int(table[idx][-1])
-    for keyy,value in hello.iteritems():
-	RHS *= keyy**hello[keyy]
+	    # for keyy,value in factors.iteritems():
+		# if (hello.has_key(keyy)):
+		    # hello[keyy] += factors[keyy]/2
+		# else:
+		    # hello[keyy] = factors[keyy]/2
+            RHS = RHS * int(table[idx][-1]) % N
+    # for keyy,value in hello.iteritems():
+	# RHS *= keyy**hello[keyy]
 
     # calculate p
     p = gcd(abs(RHS-LHS), N)
