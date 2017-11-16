@@ -20,56 +20,43 @@ def generate_matrix (N, L, B, F):
     # generate L relations
     T = np.zeros([L, 4], dtype=np.int64) 
     i = 0
-    k = 1
-    j = 0
-    Thres = 50
 
     # fill up entire table
-    while i < L:
-        
-        # generate a test r and r^2
-        r = int(math.floor(math.sqrt(k*N)) + j)
-        r2 = (r**2) % N
-        
-	dict_of_fac = checkSmooth_(r2,B)
-        hashdict = {}
+    for k in range(1,100):
+        for j in range(k):
+            if i == L:
+                break
+            # generate a test r and r^2
+            r = int(math.floor(math.sqrt(k*N)) + j)
+            r2 = (r**2) % N
+            
+            dict_of_fac = checkSmooth_(r2,B)
 
-        # check if r2 is B-smooth and not duplicate
-        if dict_of_fac != -1:
+            # check if r2 is B-smooth and not duplicate
+            if dict_of_fac != -1:
 
-            # generate matrix representation
-            # '[1,1,0,0,1,...]'
-            r2_mat_repr = np.zeros([1,len(F)], dtype=int)
+                # generate matrix representation
+                # '[1,1,0,0,1,...]'
+                r2_mat_repr = np.zeros([1,len(F)], dtype=int)
 
-            for key,value in dict_of_fac.iteritems():
-                ind = F.index(key)
-                r2_mat_repr[0][ind] = value%2
+                for key,value in dict_of_fac.iteritems():
+                    ind = F.index(key)
+                    r2_mat_repr[0][ind] = value%2
 
-            # if not duplicate, we add it in
-            try:
-                print M.shape
-                if dict[r2_mat_repr]:
-                    print i,k,j,r,r2
-                    # add table and matrix row
+                # if not duplicate, we add it in
+                try: 
+                    if not((M == r2_mat_repr).all(1).any()):
+                        # add table and matrix row
+                        T[i] = (k, j, r, r2)
+                        M = np.vstack([M,r2_mat_repr])
+                        i += 1
+                except UnboundLocalError:
                     T[i] = (k, j, r, r2)
-                    M = np.vstack([M, r2_mat_repr])
+                    M = r2_mat_repr
                     i += 1
-            except UnboundLocalError:
-                M = r2_mat_repr
-                i += 1
-        k += 1
-        if k >= Thres:
-            k %= Thres
-            j += 1
 
-    print('\tmax k={}, j={}'.format(Thres,j))
     print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
             np.amax(T,axis=0)[3]))
-     
-
-    # store to matrix
-    M = np.zeros((L,len(F)))
-    rownum = 0
 
     return T, M
 
@@ -108,15 +95,11 @@ def test_solution(x, table, F, N):
             0,0 if not valid
     """
     # TODO
-    LHS = np.int64(1)                         # tracks r values
+    LHS = np.int64(1)                       # tracks r values
     RHS = np.int64(1)                        # track r^2
     B = F[-1] + 1
     hello = {} 
     soln =  x.rstrip().split(' ')
-    # if soln.count('1') > 30:
-        # # print('sol count:{}'.format(soln.count('1')))
-        # pass
-        # return 1,1
 
     for idx, val in enumerate(soln):
         # select row
@@ -227,10 +210,10 @@ if __name__ == "__main__":
         num_soln = out_f.readline()
 
         for x in out_f.readlines():
+            print("\t[*]testing a candidate...")
             p, q = test_solution(x, T, F, N)
             if (p != 1 and q != 1):
                 break
-
 
     # print answer
     if (p != 1 and q != 1):
