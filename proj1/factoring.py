@@ -80,17 +80,20 @@ def generate_matrix (table,F):
 	rownum += 1
     return M
 
-def test_solution(solution, F, N):
+def test_solution(solution, in_f, R, F, N):
     """
     DESC:   parses a bit-string across a factorbase and
             determine if it is a valid solution
     INPUT:  solution - bit string to test
+            in_f - matrix of equations
+            R - table of r values
             F - factor base
             N - number N = pq to factor
     OUTPUT: p,q - valid solution to factor N,
             0,0 if not valid
     """
     # TODO
+    
     return 0, 0
 
 if __name__ == "__main__":
@@ -165,13 +168,13 @@ if __name__ == "__main__":
         os.system("./gauss {} {}".format(in_file, out_file))
         print "\t[*] gauss program executed. output at {}".format(out_file)
 
-    with open(out_file,"r") as f:
+    with open(out_file,"r") as out_f and open(in_file,"w") as in_f:
 
-        num_soln = f.readline()
+        num_soln = out_f.readline()
 
-        for solution in f.readlines():
+        for solution in out_f.readlines():
             #TODO test solution
-            p, q = test_solution(solution, F, N)
+            p, q = test_solution(solution, in_f, table, F, N)
             if (p != 0 and q != 0):
                 print "p={}\tq={}".format(p,q)
         
