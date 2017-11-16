@@ -18,23 +18,30 @@ def populate_table (T, N, B):
     i = 0
     k = 1
     j = 0
-    Thres = 100
+    Thres = 10
 
     # fill up entire table
     while i < L:
 
-        r = math.floor(math.sqrt(k*N)) + j
-        r2 = r**2 % N
+
+        r = int(math.floor(math.sqrt(k*N)) + j)
+        if r > 50000:
+            print k,N, j
+        r2 = (r**2) % N
 
         # check if r2 is B-smooth
         if checkSmooth_(r2,B) != -1:
             T[i] = (k, j, r, r2)
             i += 1
     
-        j += 1
-        if j >= Thres:
-            j %= Thres
-            k += 1
+        k += 1
+        if k >= Thres:
+            k %= Thres
+            j += 1
+
+    print('\tmax k={}, j={}'.format(Thres,j))
+    print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
+            np.amax(T,axis=0)[3]))
     return T
 
 def checkSmooth_(r2,B):
@@ -97,7 +104,9 @@ def test_solution(x, table, F, N):
     B = F[-1] + 1
     
     soln =  x.rstrip().split(' ')
-    print soln.count('1')
+    if soln.count('1') > 30:
+        # print('sol count:{}'.format(soln.count('1')))
+        return 1,1
 
     for idx, val in enumerate(soln):
         # select row
@@ -125,15 +134,9 @@ def gcd(a,b):
     """
     a = abs(a)
     b = abs(b)
-
     while a:
         a, b = b%a, a
     return b
-
-def merge_dict(x,y):
-    z = x.copy()
-    z.update(y)
-    return z
 
 if __name__ == "__main__":
 
@@ -141,6 +144,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Factoring Algorithm')
     parser.add_argument('--generate','-g', action='store_true',
                         help='generates r values')
+    parser.add_argument('--n','-n', type=int,
+                        default=323, help='modulus N values')
 
     args = parser.parse_args()
 
@@ -150,7 +155,7 @@ if __name__ == "__main__":
     test_N2 = 307561    # 457 * 673
     test_N3 = 31741649  # 4621 * 6969
 
-    N = test_N2
+    N = args.n
 
     prime_file = "prim_2_24.txt"
     in_file = "in.mat"
@@ -182,7 +187,7 @@ if __name__ == "__main__":
     print "\tL = {}".format(len(F))
 
     # generate L relations
-    table = np.empty([L, 4]) 
+    table = np.zeros([L, 4], dtype=int) 
     
     # find suitable r values
     populate_table(table, N, B)
