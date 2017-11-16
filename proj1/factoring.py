@@ -5,6 +5,7 @@ import os
 import argparse
 import math
 import time
+from tqdm import tqdm
 
 def generate_matrix (N, L, B, F):
     """
@@ -22,7 +23,7 @@ def generate_matrix (N, L, B, F):
     i = 0
 
     # fill up entire table
-    for k in range(1,100):
+    for k in range(1,800):
         for j in range(k):
             if i == L:
                 break
@@ -50,10 +51,12 @@ def generate_matrix (N, L, B, F):
                         T[i] = (k, j, r, r2)
                         M = np.vstack([M,r2_mat_repr])
                         i += 1
+                        print i
                 except UnboundLocalError:
                     T[i] = (k, j, r, r2)
                     M = r2_mat_repr
                     i += 1
+                    print i
 
     print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
             np.amax(T,axis=0)[3]))
@@ -111,14 +114,14 @@ def test_solution(x, table, F, N):
     LHS = np.int64(1)                       # tracks r values
     RHS = np.int64(1)                        # track r^2
     B = F[-1] + 1
-    hello = {} 
+    # hello = {}
     soln =  x.rstrip().split(' ')
 
     for idx, val in enumerate(soln):
         # select row
         if val == '1':
             LHS = LHS * table[idx][-2] % N                   # get r
-            factors = checkSmooth_(table[idx][-1],B)  # get dict of factors
+            # factors = checkSmooth_(table[idx][-1],B)  # get dict of factors
 	    # for keyy,value in factors.iteritems():
 		# if (hello.has_key(keyy)):
 		    # hello[keyy] += factors[keyy]/2
@@ -164,7 +167,16 @@ if __name__ == "__main__":
     test_N2 = 307561    # 457 * 673
     test_N3 = 31741649  # 4621 * 6969
 
-    N = args.n
+    if args.n == -1:
+        N = test_N1
+    elif args.n == -2:
+        N = test_N2
+    elif args.n == -3:
+        N = test_N3
+    elif args.n == -4:
+        N = project_N
+    else:
+        N = args.n
 
     prime_file = "prim_2_24.txt"
     in_file = "in.mat"
@@ -221,8 +233,7 @@ if __name__ == "__main__":
 
         num_soln = out_f.readline()
 
-        for x in out_f.readlines():
-            print("\t[*]testing a candidate...")
+        for x in tqdm(out_f.readlines()):
             p, q = test_solution(x, T, F, N)
             if (p != 1 and q != 1):
                 break
