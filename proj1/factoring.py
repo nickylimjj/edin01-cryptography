@@ -60,9 +60,6 @@ def generate_matrix (N, L, B, F):
                     i += 1
                     pbar.update(1)
 
-    print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
-            np.amax(T,axis=0)[3]))
-
     return T, M
 
 def checkSmooth_(r2,B):
@@ -74,6 +71,9 @@ def checkSmooth_(r2,B):
     """
     curr = r2
     fac = {} 
+
+    if r2 == 0:
+        return -1
     for i in range(2,B):
         while curr % i == 0:
             curr /= i
@@ -86,49 +86,34 @@ def checkSmooth_(r2,B):
         return fac
     return -1
         
-def is_smooth(n, F):
-    if n == 0:
-        return -1
-
-    for factor in F:
-        while n % factor == 0:
-            n /= factor
-            try:
-                fac[i] += 1
-            except KeyError:
-                fac[i] = 1
-    if n == 1:
-        return fac
-    return -1
-
 def test_solution(x, table, F, N):
     """
     DESC:   parses a bit-string across a factorbase and
             determine if it is a valid solution
     INPUT:  x - bit string to test
-            table - table of r and r^2 values
+            table - table of r and r^2 mod N values
             F - factor base
             N - number N = pq to factor
     OUTPUT: p,q - valid solution to factor N,
             1,N if not found
     """
-    # TODO
-    decimal.localcontext().prec = 4096
+    # for high precision sqrt-ing
+    decimal.getcontext().prec = 4096
      
-    LHS = decimal.Decimal(1)                       # tracks x 
-    RHS = decimal.Decimal(1)                        # track y^2
+    LHS = decimal.Decimal(1)    # tracks x 
+    RHS = decimal.Decimal(1)    # track y^2
     B = F[-1] + 1
 
     soln =  x.rstrip().split(' ')
 
     for idx, val in enumerate(soln):
-        # include row
+        # include rows if solution is a 1
         if val == '1':
             LHS = LHS * table[idx][-2] % N
-            RHS = RHS * decimal.Decimal(table[idx][-1]) % N
+            RHS = RHS * decimal.Decimal(table[idx][-1])
 
-    # get y
-    RHS = int(decimal.Decimal(RHS).sqrt()) % N
+    # get y by square rooting at high precision, then mod N
+    RHS = int(decimal.Decimal(RHS.sqrt())) % N
 
     # calculate p
     p = gcd(abs(RHS-LHS), N)
@@ -151,16 +136,20 @@ def gcd(a,b):
 
 if __name__ == "__main__":
 
+    big_bang = time.time()
     # parse cmdline args
     parser = argparse.ArgumentParser(description='Factoring Algorithm')
-    parser.add_argument('--generate','-g', action='store_true',
-                        help='generates r values')
     parser.add_argument('--n','-n', type=int,
-                        default=323, help='modulus N values')
+                        default=323, help='modulus N values. \
+                                default=323 (easiest test case) \
+                                special values: -[1-6] for \
+                                testcases 1-5 and our project')
     parser.add_argument('--l','-l', type=int,
-                        default=256, help='# distinct relations')
+                        default=1024, help='num distinct relations. \
+                                default=1024')
     parser.add_argument('--f','-f', type=int,
-                        default=251, help='factor base size')
+                        default=1000, help='factor base size. \
+                                default=1000')
 
     args = parser.parse_args()
 
@@ -169,16 +158,22 @@ if __name__ == "__main__":
 
     if args.n == -1:
         N = 323       # 17 * 19
+        p_sol, q_sol = 17, 19
     elif args.n == -2:
         N = 307561    # 457 * 673
+        p_sol, q_sol = 457, 673
     elif args.n == -3:
-        N = 31741649  # 4621 * 6969
+        N = 31741649  # 4621 * 6869
+        p_sol, q_sol = 4621, 6869
     elif args.n == -4:
         N = 3205837387  # 46819 * 68473
+        p_sol, q_sol = 46819, 68473
     elif args.n == -5:
         N = 392742364277  # 534571 * 734687
+        p_sol, q_sol = 534571, 734687
     elif args.n == -6:
         N = project_N
+        p_sol, q_sol = 290665556651, 308577643939
     else:
         N = args.n
 
@@ -212,8 +207,10 @@ if __name__ == "__main__":
 
     
     # find suitable r values
+    start = time.time()
     T, M = generate_matrix(N, L, B, F)
-    print "\t[*] matrix generated"
+    print "\t[*] matrix generated\t({}s)".format(time.time()-start)
+
 
     # matrix for gaussian elimination
 
@@ -232,6 +229,7 @@ if __name__ == "__main__":
     print "\t[*] gauss program executed. output at {}".format(out_file)
 
     # finds the solution p, q
+    start = time.time()
     with open(out_file,"r") as out_f:
 
         num_soln = out_f.readline()
@@ -243,7 +241,11 @@ if __name__ == "__main__":
 
     # print answer
     if (p != 1 and q != 1):
-        print "p={}\tq={}".format(p,q)
+        print "p={}\tq={}\t({}s)".format(p,q, time.time()-start)
+        if p_sol == p and q_sol == q:
+            print "[*] solution verified CORRECT"
     else:
         print("solution not found")
+
+    print'--- Program ran in {}s ---'.format(time.time()-big_bang)
         
