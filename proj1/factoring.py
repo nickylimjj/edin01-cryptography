@@ -242,8 +242,11 @@ if __name__ == "__main__":
     # print answer
     if (p != 1 and q != 1):
         print "p={}\tq={}\t({}s)".format(p,q, time.time()-start)
-        if p_sol == p and q_sol == q:
-            print "[*] solution verified CORRECT"
+        try:
+            if p_sol == p and q_sol == q:
+                print "[*] solution verified CORRECT"
+        except NameError:
+            pass
     else:
         print("solution not found")
 
