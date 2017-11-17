@@ -6,6 +6,7 @@ import argparse
 import math
 import time
 from tqdm import tqdm
+import decimal
 
 def generate_matrix (N, L, B, F):
     """
@@ -21,9 +22,10 @@ def generate_matrix (N, L, B, F):
     # generate L relations
     T = np.zeros([L, 4], dtype=np.int64) 
     i = 0
+    pbar = tqdm(total=L)
 
     # fill up entire table
-    for k in range(1,800):
+    for k in range(1,10000):
         for j in range(k):
             if i == L:
                 break
@@ -51,12 +53,12 @@ def generate_matrix (N, L, B, F):
                         T[i] = (k, j, r, r2)
                         M = np.vstack([M,r2_mat_repr])
                         i += 1
-                        print i
+                        pbar.update(1)
                 except UnboundLocalError:
                     T[i] = (k, j, r, r2)
                     M = r2_mat_repr
                     i += 1
-                    print i
+                    pbar.update(1)
 
     print('\tmax r,r2 = {},{}'.format(np.amax(T,axis=0)[2],
             np.amax(T,axis=0)[3]))
@@ -108,34 +110,31 @@ def test_solution(x, table, F, N):
             F - factor base
             N - number N = pq to factor
     OUTPUT: p,q - valid solution to factor N,
-            0,0 if not valid
+            1,N if not found
     """
     # TODO
-    LHS = np.int64(1)                       # tracks r values
-    RHS = np.int64(1)                        # track r^2
+    decimal.localcontext().prec = 4096
+     
+    LHS = decimal.Decimal(1)                       # tracks x 
+    RHS = decimal.Decimal(1)                        # track y^2
     B = F[-1] + 1
-    # hello = {}
+
     soln =  x.rstrip().split(' ')
 
     for idx, val in enumerate(soln):
-        # select row
+        # include row
         if val == '1':
-            LHS = LHS * table[idx][-2] % N                   # get r
-            # factors = checkSmooth_(table[idx][-1],B)  # get dict of factors
-	    # for keyy,value in factors.iteritems():
-		# if (hello.has_key(keyy)):
-		    # hello[keyy] += factors[keyy]/2
-		# else:
-		    # hello[keyy] = factors[keyy]/2
-            RHS = RHS * int(table[idx][-1]) % N
-    # for keyy,value in hello.iteritems():
-	# RHS *= keyy**hello[keyy]
+            LHS = LHS * table[idx][-2] % N
+            RHS = RHS * decimal.Decimal(table[idx][-1]) % N
+
+    # get y
+    RHS = int(decimal.Decimal(RHS).sqrt()) % N
 
     # calculate p
     p = gcd(abs(RHS-LHS), N)
-    q = N/p
 
-    return p, q
+    q = N/p
+    return min(p,q), max(p,q) 
 
 def gcd(a,b):
     """
@@ -158,22 +157,27 @@ if __name__ == "__main__":
                         help='generates r values')
     parser.add_argument('--n','-n', type=int,
                         default=323, help='modulus N values')
+    parser.add_argument('--l','-l', type=int,
+                        default=256, help='# distinct relations')
+    parser.add_argument('--f','-f', type=int,
+                        default=251, help='factor base size')
 
     args = parser.parse_args()
 
     # our N
-    project_N = 89692892645583511288289L
-    test_N1 = 323       # 17 * 19
-    test_N2 = 307561    # 457 * 673
-    test_N3 = 31741649  # 4621 * 6969
+    project_N = 89692892645583511288289
 
     if args.n == -1:
-        N = test_N1
+        N = 323       # 17 * 19
     elif args.n == -2:
-        N = test_N2
+        N = 307561    # 457 * 673
     elif args.n == -3:
-        N = test_N3
+        N = 31741649  # 4621 * 6969
     elif args.n == -4:
+        N = 3205837387  # 46819 * 68473
+    elif args.n == -5:
+        N = 392742364277  # 534571 * 734687
+    elif args.n == -6:
         N = project_N
     else:
         N = args.n
@@ -187,7 +191,7 @@ if __name__ == "__main__":
     print("N =\t{}".format(N))
 
     # factorbase our choice is size 1000
-    F_size = 1000
+    F_size = args.f
     F = []
 
     print("\tloading factorbase {}...".format(prime_file))
@@ -199,8 +203,7 @@ if __name__ == "__main__":
                 F += [int(word)]
                 size += 1
                 
-    # L size specified on website
-    L = 1024
+    L = args.l
     B = F[-1] + 1
 
     print "\t|F| = {}".format(len(F))
