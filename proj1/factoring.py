@@ -174,6 +174,8 @@ if __name__ == "__main__":
     elif args.n == -6:
         N = project_N
         p_sol, q_sol = 290665556651, 308577643939
+    elif args.n == -7:
+        N = 9243444733977001548544881401
     else:
         N = args.n
 
