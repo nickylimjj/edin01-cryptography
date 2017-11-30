@@ -41,35 +41,35 @@ def nlfsr5(iState, n=5**4):
 
     for i in range(n):
         # primitive 2x^4 + 2x^3 + 2x^2 + 2x + 1
-        if (curr_state[0] == '0' and
+        if (curr_state[0] == '2' and
             curr_state[1] == '0' and
             curr_state[2] == '0' and
             curr_state[3] == '0'):
             
             # case '0000' to transit back to main cycle
             curr_state = curr_state[1:] + str(
-                         (2 * int(curr_state[0]) + 
-                          2 * int(curr_state[1]) +
-                          2 * int(curr_state[2]) +
-                          2 * int(curr_state[3]) + 1) % 5)
-        elif (curr_state[0] == '3' and
+                         (-2 * int(curr_state[0]) + 
+                          -2 * int(curr_state[1]) +
+                          -2 * int(curr_state[2]) +
+                          -2 * int(curr_state[3]) - 1) % 5)
+        elif (curr_state[0] == '0' and
               curr_state[1] == '0' and
               curr_state[2] == '0' and
               curr_state[3] == '0'):
 
               # case '3000' to transit out of main cycle
               curr_state = curr_state[1:] + str(
-                         (2 * int(curr_state[0]) + 
-                          2 * int(curr_state[1]) +
-                          2 * int(curr_state[2]) +
-                          2 * int(curr_state[3]) - 1) % 5)
+                         (-2 * int(curr_state[0]) + 
+                          -2 * int(curr_state[1]) +
+                          -2 * int(curr_state[2]) +
+                          -2 * int(curr_state[3]) + 1) % 5)
         else:
             curr_state = curr_state[1:] + str(
                      
-                         (2 * int(curr_state[0]) + 
-                          2 * int(curr_state[1]) +
-                          2 * int(curr_state[2]) +
-                          2 * int(curr_state[3])) % 5)
+                         (-2 * int(curr_state[0]) + 
+                          -2 * int(curr_state[1]) +
+                          -2 * int(curr_state[2]) +
+                          -2 * int(curr_state[3])) % 5)
 
         res += curr_state[-1]
 
@@ -85,9 +85,6 @@ def nlfsr10(iState):
 
     seq2 =nlfsr2(iState, 10000)
     seq5 =nlfsr5(iState, 10000)
-    print seq2[:16]
-    print seq2[16:32]
-    print seq5[:16]
 
     res = map(lambda (a,b): str(int(a)*5+int(b)),
               zip(seq2,seq5))
