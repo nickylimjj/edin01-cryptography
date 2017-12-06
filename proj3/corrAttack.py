@@ -1,4 +1,5 @@
 #Project 3
+from __future__ import division
 
 
 def genStream1(K, n):
@@ -99,19 +100,23 @@ def highestP1(givenSeq, n):
 
 #   Outline: Inside a loop, generate a key K, call genStream1(K,n), call HamDist(...), 
 #            calculate p*, compare with max p*, update max p* and corresponding Key K then output.
-    maxp = 0
+    p_star = 0.5
+    maxdev = 0
     maxK = None
 
     for i in range(1 , 2**13):
         K = [x for x in format(i, '013b')]
         genSeq = genStream1(K,n)
         dist = HamDist(genSeq, givenSeq, n)
-        p = 1 - (dist/n)
-        if p > maxp:
-            maxp = p
+        p = 1.0 - (dist/n)
+        dev = abs(p - 0.5)
+        if dev > maxdev:
+            print (dev)
+            p_star = p
+            maxdev = dev
             maxK = K
 
-    return  maxp , maxK
+    return  p_star, maxK
 
 def highestP2(givenSeq, n):
 
