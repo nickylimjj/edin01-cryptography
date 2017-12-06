@@ -15,12 +15,12 @@ def genStream1(K, n):
     for i in range(n):
         # primitive 1+x+x2+x4+x6+x7+x10+x11+x13
         curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
-                                      int(curr_state[1])      +
+                                      int(curr_state[2])      +
                                       int(curr_state[3])      +
-                                      int(curr_state[5])      +
                                       int(curr_state[6])      +
+                                      int(curr_state[7])      +
                                       int(curr_state[9])      +
-                                      int(curr_state[10])     +
+                                      int(curr_state[11])     +
                                       int(curr_state[12])) % 2)]
         res += curr_state[-1]
 
@@ -39,14 +39,14 @@ def genStream2(K, n):
 
     for i in range(n):
         # primitive 1+x2+x4+x6+x7+x10+x11+x13+x15
-        curr_state = curr_state[1:] + [str((int(curr_state[1]) + 
-                                      int(curr_state[3])      +
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
+                                      int(curr_state[2])      +
+                                      int(curr_state[4])      +
                                       int(curr_state[5])      +
-                                      int(curr_state[6])      +
+                                      int(curr_state[8])      +
                                       int(curr_state[9])      +
-                                      int(curr_state[10])     +
-                                      int(curr_state[12])     +
-                                      int(curr_state[14])) % 2)]
+                                      int(curr_state[11])     +
+                                      int(curr_state[13])) % 2)]
         res += curr_state[-1]
 
     return res
@@ -63,15 +63,14 @@ def genStream3(K, n):
 
     for i in range(n):
         # primitive 1+x2+x4+x5+x8+x10+x13+x16+x17
-        curr_state = curr_state[1:] + [str((int(curr_state[1]) + 
-                                      int(curr_state[3])      +
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
+                                      int(curr_state[1])      +
                                       int(curr_state[4])      +
-                                      int(curr_state[7])      +
                                       int(curr_state[7])      +
                                       int(curr_state[9])      +
                                       int(curr_state[12])     +
-                                      int(curr_state[15])     +
-                                      int(curr_state[16])) % 2)]
+                                      int(curr_state[13])     +
+                                      int(curr_state[15])) % 2)]
         res += curr_state[-1]
 
     return res
@@ -111,7 +110,6 @@ def highestP1(givenSeq, n):
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
-            print (dev)
             p_star = p
             maxdev = dev
             maxK = K
@@ -138,7 +136,6 @@ def highestP2(givenSeq, n):
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
-            print (dev)
             p_star = p
             maxdev = dev
             maxK = K
@@ -165,7 +162,6 @@ def highestP3(givenSeq, n):
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
-            print (dev)
             p_star = p
             maxdev = dev
             maxK = K
@@ -183,8 +179,11 @@ if __name__ == "__main__":
 
     n = len(givenSeq)
     # calculate most probably key for each LFSR
+    print('calc p1...')
     p1 , k1 = highestP1(givenSeq, n)
+    print('calc p2...')
     p2 , k2 = highestP2(givenSeq, n)
+    print('calc p3...')
     p3 , k3 = highestP3(givenSeq, n)
 
     print(k1,k2,k3)
