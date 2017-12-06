@@ -126,8 +126,24 @@ def highestP2(givenSeq, n):
 #   OUTPUT: Highest probability for LFSR 2, corresponding Key
 
 #   Outline: same as highestP1
-    return
 
+    p_star = 0.5
+    maxdev = 0
+    maxK = None
+
+    for i in range(1 , 2**15):
+        K = [x for x in format(i, '015b')]
+        genSeq = genStream1(K,n)
+        dist = HamDist(genSeq, givenSeq, n)
+        p = 1.0 - (dist/n)
+        dev = abs(p - 0.5)
+        if dev > maxdev:
+            print (dev)
+            p_star = p
+            maxdev = dev
+            maxK = K
+
+    return  p_star, maxK
 
 def highestP3(givenSeq, n):
 
@@ -137,7 +153,24 @@ def highestP3(givenSeq, n):
 #   OUTPUT: Highest probability for LFSR 3, corresponding Key
 
 #   Outline: same as highestP1
-    return
+
+    p_star = 0.5
+    maxdev = 0
+    maxK = None
+
+    for i in range(1 , 2**17):
+        K = [x for x in format(i, '017b')]
+        genSeq = genStream1(K,n)
+        dist = HamDist(genSeq, givenSeq, n)
+        p = 1.0 - (dist/n)
+        dev = abs(p - 0.5)
+        if dev > maxdev:
+            print (dev)
+            p_star = p
+            maxdev = dev
+            maxK = K
+
+    return  p_star, maxK
 
 if __name__ == "__main__":
     
@@ -150,9 +183,22 @@ if __name__ == "__main__":
 
     n = len(givenSeq)
     # calculate most probably key for each LFSR
-    _ , k1 = highestP1(givenSeq, n)
-   # k2 = highestP2(givenSeq, n)
-    #k3 = highestP3(givenSeq, n)
+    p1 , k1 = highestP1(givenSeq, n)
+    p2 , k2 = highestP2(givenSeq, n)
+    p3 , k3 = highestP3(givenSeq, n)
 
-    print(k1)
-    #print(k1,k2,k3)
+    print(k1,k2,k3)
+    print(p1,p2,p3)
+
+    s1 = genStream1(k1, n)
+    s2 = genStream2(k2 ,n)
+    s3 = genStream3(k3, n)
+    z = []
+    for i in range(0, n):
+
+        if (int(s1[i]) + int(s2[i]) + int(s3[i])) > 1:
+            z += [1]
+        else:
+            z += [0]
+    print(z)
+    print(givenSeq)
