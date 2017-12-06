@@ -7,6 +7,7 @@ def genStream1(K, n):
     INPUT:  K (Key)
             n (lenth of keystream)
     OUTPUT: Stream for LFSR1 (len 13) for corresponding K
+            newer symbols on right
     """
 
     res = ''
@@ -32,6 +33,7 @@ def genStream2(K, n):
     INPUT:  K (Key)
             n (lenth of keystream)
     OUTPUT: Stream for LFSR2 (len 15) for corresponding K
+            newer symbols on right
     """
 
     res = ''
@@ -56,6 +58,7 @@ def genStream3(K, n):
     INPUT:  K (Key)
             n (lenth of keystream)
     OUTPUT: Stream for LFSR3 (len 17) for corresponding K
+            newer symbols on right
     """ 
 
     res = ''
@@ -75,16 +78,19 @@ def genStream3(K, n):
 
     return res
 
-def HamDist(genSeq, givenSeq, n):
+def hamDist(genSeq, givenSeq, n):
 
 #   INPUT: genSeq (Generated Sequence from LFSR)
 #          givenSeq 
 #          length n of keystream
 
 #   OUTPUT: Hamming Distance
+#   Note:   comparing strings
 
     dist = 0
     for i in range(0,n):
+        assert type(genSeq[i]) == type(givenSeq[i]), "ham type error"
+
         if genSeq[i] != givenSeq[i]:
             dist += 1
 
@@ -106,7 +112,7 @@ def highestP1(givenSeq, n):
     for i in range(1 , 2**13):
         K = [x for x in format(i, '013b')]
         genSeq = genStream1(K,n)
-        dist = HamDist(genSeq, givenSeq, n)
+        dist = hamDist(genSeq, givenSeq, n)
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
@@ -131,8 +137,8 @@ def highestP2(givenSeq, n):
 
     for i in range(1 , 2**15):
         K = [x for x in format(i, '015b')]
-        genSeq = genStream1(K,n)
-        dist = HamDist(genSeq, givenSeq, n)
+        genSeq = genStream2(K,n)
+        dist = hamDist(genSeq, givenSeq, n)
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
@@ -157,8 +163,8 @@ def highestP3(givenSeq, n):
 
     for i in range(1 , 2**17):
         K = [x for x in format(i, '017b')]
-        genSeq = genStream1(K,n)
-        dist = HamDist(genSeq, givenSeq, n)
+        genSeq = genStream3(K,n)
+        dist = hamDist(genSeq, givenSeq, n)
         p = 1.0 - (dist/n)
         dev = abs(p - 0.5)
         if dev > maxdev:
@@ -189,6 +195,7 @@ if __name__ == "__main__":
     print(k1,k2,k3)
     print(p1,p2,p3)
 
+    # verifying
     s1 = genStream1(k1, n)
     s2 = genStream2(k2 ,n)
     s3 = genStream3(k3, n)
@@ -196,8 +203,11 @@ if __name__ == "__main__":
     for i in range(0, n):
 
         if (int(s1[i]) + int(s2[i]) + int(s3[i])) > 1:
-            z += [1]
+            z += ['1']
         else:
-            z += [0]
-    print(z)
-    print(givenSeq)
+            z += ['0']
+
+    diff = hamDist(z, givenSeq, n)
+
+    print("{}% match".format(1 - diff/n))
+    
