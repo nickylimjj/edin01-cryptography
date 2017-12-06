@@ -2,46 +2,78 @@
 
 
 def genStream1(K, n):
-
-#   INPUT: K (Key)
-#          n (lenth of keystream)
-
-#   OUTPUT: Stream for LFSR 1 for corresponding K
+    """
+    INPUT:  K (Key)
+            n (lenth of keystream)
+    OUTPUT: Stream for LFSR1 (len 13) for corresponding K
+    """
 
     res = ''
     curr_state = K
 
     for i in range(n):
-        # primitive x^4 + x + 1
-        if (curr_state[1] == '0' and
-            curr_state[2] == '0' and
-            curr_state[3] == '0'):
-            curr_state = curr_state[1:] + str((int(curr_state[0]) + 
-                                        int(curr_state[3]) + 1) % 2)
-        else:
-            curr_state = curr_state[1:] + str((int(curr_state[0]) + 
-                                        int(curr_state[3])) % 2)
+        # primitive 1+x+x2+x4+x6+x7+x10+x11+x13
+        curr_state = curr_state[1:] + str((int(curr_state[0]) + 
+                                      int(curr_state[1])      +
+                                      int(curr_state[3])      +
+                                      int(curr_state[5])      +
+                                      int(curr_state[6])      +
+                                      int(curr_state[9])      +
+                                      int(curr_state[10])     +
+                                      int(curr_state[12])) % 2)
         res += curr_state[-1]
 
     return res
 
 
 def genStream2(K, n):
+    """
+    INPUT:  K (Key)
+            n (lenth of keystream)
+    OUTPUT: Stream for LFSR2 (len 15) for corresponding K
+    """
 
-#   INPUT: K (Key)
-#          n (lenth of keystream)
+    res = ''
+    curr_state = K
 
-#   OUTPUT: Stream for LFSR 2 for corresponding K
-    return
+    for i in range(n):
+        # primitive 1+x2+x4+x6+x7+x10+x11+x13+x15
+        curr_state = curr_state[1:] + str((int(curr_state[1]) + 
+                                      int(curr_state[3])      +
+                                      int(curr_state[5])      +
+                                      int(curr_state[6])      +
+                                      int(curr_state[9])      +
+                                      int(curr_state[10])     +
+                                      int(curr_state[12])     +
+                                      int(curr_state[14])) % 2)
+        res += curr_state[-1]
 
+    return res
 
 def genStream3(K, n):
+    """
+    INPUT:  K (Key)
+            n (lenth of keystream)
+    OUTPUT: Stream for LFSR3 (len 17) for corresponding K
+    """ 
 
-#   INPUT: K (Key)
-#          n (lenth of keystream)
+    res = ''
+    curr_state = K
 
-#   OUTPUT: Stream for LFSR 3 for corresponding K
-    return
+    for i in range(n):
+        # primitive 1+x2+x4+x5+x8+x10+x13+x16+x17
+        curr_state = curr_state[1:] + str((int(curr_state[1]) + 
+                                      int(curr_state[3])      +
+                                      int(curr_state[4])      +
+                                      int(curr_state[7])      +
+                                      int(curr_state[7])      +
+                                      int(curr_state[9])      +
+                                      int(curr_state[12])     +
+                                      int(curr_state[15])     +
+                                      int(curr_state[16])) % 2)
+        res += curr_state[-1]
+
+    return res
 
 def HamDist(genSeq, givenSeq):
 
@@ -89,7 +121,8 @@ if __name__ == "__main__":
 
     # Import our Sequence 
     with open(fn, 'r') as f:
-        givenSeq = "".join([line.strip() for line in f.readlines()])
+        givenSeq = [ x for x in "".join(
+                     [line.strip() for line in f.readlines()])]
 
     n = len(givenSeq)
 
@@ -99,4 +132,4 @@ if __name__ == "__main__":
     k3 = highestP3(givenSeq, n)
 
 
-    return (k1,k2,k3)
+    print(k1,k2,k3)
