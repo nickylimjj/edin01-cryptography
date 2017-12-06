@@ -209,5 +209,5 @@ if __name__ == "__main__":
 
     diff = hamDist(z, givenSeq, n)
 
-    print("{}% match".format(1 - diff/n))
+    print("{}% match".format((1 - diff/n) * 100))
     
