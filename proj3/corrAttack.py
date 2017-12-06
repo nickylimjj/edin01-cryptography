@@ -13,14 +13,14 @@ def genStream1(K, n):
 
     for i in range(n):
         # primitive 1+x+x2+x4+x6+x7+x10+x11+x13
-        curr_state = curr_state[1:] + str((int(curr_state[0]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
                                       int(curr_state[1])      +
                                       int(curr_state[3])      +
                                       int(curr_state[5])      +
                                       int(curr_state[6])      +
                                       int(curr_state[9])      +
                                       int(curr_state[10])     +
-                                      int(curr_state[12])) % 2)
+                                      int(curr_state[12])) % 2)]
         res += curr_state[-1]
 
     return res
@@ -38,14 +38,14 @@ def genStream2(K, n):
 
     for i in range(n):
         # primitive 1+x2+x4+x6+x7+x10+x11+x13+x15
-        curr_state = curr_state[1:] + str((int(curr_state[1]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[1]) + 
                                       int(curr_state[3])      +
                                       int(curr_state[5])      +
                                       int(curr_state[6])      +
                                       int(curr_state[9])      +
                                       int(curr_state[10])     +
                                       int(curr_state[12])     +
-                                      int(curr_state[14])) % 2)
+                                      int(curr_state[14])) % 2)]
         res += curr_state[-1]
 
     return res
@@ -62,7 +62,7 @@ def genStream3(K, n):
 
     for i in range(n):
         # primitive 1+x2+x4+x5+x8+x10+x13+x16+x17
-        curr_state = curr_state[1:] + str((int(curr_state[1]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[1]) + 
                                       int(curr_state[3])      +
                                       int(curr_state[4])      +
                                       int(curr_state[7])      +
@@ -70,18 +70,25 @@ def genStream3(K, n):
                                       int(curr_state[9])      +
                                       int(curr_state[12])     +
                                       int(curr_state[15])     +
-                                      int(curr_state[16])) % 2)
+                                      int(curr_state[16])) % 2)]
         res += curr_state[-1]
 
     return res
 
-def HamDist(genSeq, givenSeq):
+def HamDist(genSeq, givenSeq, n):
 
 #   INPUT: genSeq (Generated Sequence from LFSR)
 #          givenSeq 
+#          length n of keystream
 
 #   OUTPUT: Hamming Distance
-    return
+
+    dist = 0
+    for i in range(0,n):
+        if genSeq[i] != givenSeq[i]:
+            dist += 1
+
+    return dist
 
 def highestP1(givenSeq, n):
 
@@ -90,9 +97,21 @@ def highestP1(givenSeq, n):
 
 #   OUTPUT: Highest probability for LFSR 1, corresponding Key
 
-#   Outline: Inside a loop, generate a key K, call genStream1(K), call HamDist(...), 
+#   Outline: Inside a loop, generate a key K, call genStream1(K,n), call HamDist(...), 
 #            calculate p*, compare with max p*, update max p* and corresponding Key K then output.
-    return
+    maxp = 0
+    maxK = None
+
+    for i in range(1 , 2**13):
+        K = [x for x in format(i, '013b')]
+        genSeq = genStream1(K,n)
+        dist = HamDist(genSeq, givenSeq, n)
+        p = 1 - (dist/n)
+        if p > maxp:
+            maxp = p
+            maxK = K
+
+    return  maxp , maxK
 
 def highestP2(givenSeq, n):
 
@@ -116,7 +135,7 @@ def highestP3(givenSeq, n):
     return
 
 if __name__ == "__main__":
-
+    
     fn = 'task02.txt'
 
     # Import our Sequence 
@@ -125,11 +144,10 @@ if __name__ == "__main__":
                      [line.strip() for line in f.readlines()])]
 
     n = len(givenSeq)
-
     # calculate most probably key for each LFSR
-    k1 = highestP1(givenSeq, n)
-    k2 = highestP2(givenSeq, n)
-    k3 = highestP3(givenSeq, n)
+    _ , k1 = highestP1(givenSeq, n)
+   # k2 = highestP2(givenSeq, n)
+    #k3 = highestP3(givenSeq, n)
 
-
-    print(k1,k2,k3)
+    print(k1)
+    #print(k1,k2,k3)
