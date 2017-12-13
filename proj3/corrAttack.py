@@ -8,14 +8,15 @@ def genStream1(K, n):
             n (lenth of keystream)
     OUTPUT: Stream for LFSR1 (len 13) for corresponding K
             newer symbols on right
+            string
     """
 
-    res = ''
+    res = ''.join(K)
     curr_state = K
 
-    for i in range(n):
+    for i in range(n - len(K)):
         # primitive 1+x+x2+x4+x6+x7+x10+x11+x13
-        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) +
                                       int(curr_state[2])      +
                                       int(curr_state[3])      +
                                       int(curr_state[6])      +
@@ -23,6 +24,7 @@ def genStream1(K, n):
                                       int(curr_state[9])      +
                                       int(curr_state[11])     +
                                       int(curr_state[12])) % 2)]
+        
         res += curr_state[-1]
 
     return res
@@ -34,14 +36,15 @@ def genStream2(K, n):
             n (lenth of keystream)
     OUTPUT: Stream for LFSR2 (len 15) for corresponding K
             newer symbols on right
+            string
     """
 
-    res = ''
+    res = ''.join(K)
     curr_state = K
 
-    for i in range(n):
+    for i in range(n - len(K)):
         # primitive 1+x2+x4+x6+x7+x10+x11+x13+x15
-        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) +
                                       int(curr_state[2])      +
                                       int(curr_state[4])      +
                                       int(curr_state[5])      +
@@ -59,14 +62,15 @@ def genStream3(K, n):
             n (lenth of keystream)
     OUTPUT: Stream for LFSR3 (len 17) for corresponding K
             newer symbols on right
+            string
     """ 
 
-    res = ''
+    res = ''.join(K)
     curr_state = K
 
-    for i in range(n):
+    for i in range(n - len(K)):
         # primitive 1+x2+x4+x5+x8+x10+x13+x16+x17
-        curr_state = curr_state[1:] + [str((int(curr_state[0]) + 
+        curr_state = curr_state[1:] + [str((int(curr_state[0]) +
                                       int(curr_state[1])      +
                                       int(curr_state[4])      +
                                       int(curr_state[7])      +
@@ -79,13 +83,15 @@ def genStream3(K, n):
     return res
 
 def hamDist(genSeq, givenSeq, n):
+    """
+    INPUT:  genSeq (Generated Sequence from LFSR)
+            givenSeq 
+            length n of keystream
 
-#   INPUT: genSeq (Generated Sequence from LFSR)
-#          givenSeq 
-#          length n of keystream
-
-#   OUTPUT: Hamming Distance
-#   Note:   comparing strings
+    OUTPUT: Hamming Distance
+    Note:   comparing strings
+    """
+    genSeq = [x for x in genSeq]
 
     dist = 0
     for i in range(0,n):
@@ -96,10 +102,9 @@ def hamDist(genSeq, givenSeq, n):
 
     return dist
 
-def highestP1(givenSeq, n):
+def highestP1(givenSeq):
 
 #   INPUT:  Given Sequence
-#           length of keystream
 
 #   OUTPUT: Highest probability for LFSR 1, corresponding Key
 
@@ -108,6 +113,8 @@ def highestP1(givenSeq, n):
     p_star = 0.5
     maxdev = 0
     maxK = None
+
+    n = len(givenSeq)
 
     for i in range(1 , 2**13):
         K = [x for x in format(i, '013b')]
@@ -122,10 +129,9 @@ def highestP1(givenSeq, n):
 
     return  p_star, maxK
 
-def highestP2(givenSeq, n):
+def highestP2(givenSeq):
 
 #   INPUT:  Given Sequence
-#          n (lenth of keystream)
 
 #   OUTPUT: Highest probability for LFSR 2, corresponding Key
 
@@ -135,6 +141,7 @@ def highestP2(givenSeq, n):
     maxdev = 0
     maxK = None
 
+    n = len(givenSeq)
     for i in range(1 , 2**15):
         K = [x for x in format(i, '015b')]
         genSeq = genStream2(K,n)
@@ -148,10 +155,9 @@ def highestP2(givenSeq, n):
 
     return  p_star, maxK
 
-def highestP3(givenSeq, n):
+def highestP3(givenSeq):
 
 #   INPUT:  Given Sequence
-#          n (lenth of keystream)
 
 #   OUTPUT: Highest probability for LFSR 3, corresponding Key
 
@@ -160,6 +166,8 @@ def highestP3(givenSeq, n):
     p_star = 0.5
     maxdev = 0
     maxK = None
+
+    n = len(givenSeq)
 
     for i in range(1 , 2**17):
         K = [x for x in format(i, '017b')]
@@ -184,18 +192,29 @@ if __name__ == "__main__":
                      [line.strip() for line in f.readlines()])]
 
     n = len(givenSeq)
+
     # calculate most probably key for each LFSR
     print('calc p1...')
-    p1 , k1 = highestP1(givenSeq, n)
+    p1 , k1 = highestP1(givenSeq)
+    print(k1,p1)
     print('calc p2...')
-    p2 , k2 = highestP2(givenSeq, n)
+    p2 , k2 = highestP2(givenSeq)
+    print(k2,p2)
     print('calc p3...')
-    p3 , k3 = highestP3(givenSeq, n)
+    p3 , k3 = highestP3(givenSeq)
+    print(k3,p3)
 
-    print(k1,k2,k3)
-    print(p1,p2,p3)
 
     # verifying
+    # k1 = [c for c in '1101111011110']   # paul
+    # k1 = [c for c in '0010111100110']   # ours
+    # k2 = [c for c in '001100000110001']
+    # k3 = [c for c in '10101000100101010']
+
+    assert len(k1) == 13
+    assert len(k2) == 15
+    assert len(k3) == 17
+
     s1 = genStream1(k1, n)
     s2 = genStream2(k2 ,n)
     s3 = genStream3(k3, n)
@@ -207,7 +226,13 @@ if __name__ == "__main__":
         else:
             z += ['0']
 
+    print s1
+    print s2
+    print s3
+    print z
+    print givenSeq
+
     diff = hamDist(z, givenSeq, n)
 
-    print("{}% match".format((1 - diff/n) * 100))
+    print("{}% match".format((1 - diff/n*1.0) * 100))
     
